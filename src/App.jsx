@@ -7,6 +7,9 @@ function App() {
   const [result, setResult] = useState('');
   const [userScore, setUserScore] = useState(0);
   const [computerScore, setComputerScore] = useState(0);
+  const [rounds, setRounds] = useState(0);
+  const [history, setHistory] = useState([]);
+  const [streak, setStreak] = useState(0);
 
   const choices = ['rock', 'paper', 'scissors'];
   const emojis = { rock: '🪨', paper: '📄', scissors: '✂️' };
@@ -15,18 +18,27 @@ function App() {
     const compChoice = choices[Math.floor(Math.random() * 3)];
     setUserMove(choice);
     setComputerChoice(compChoice);
+    let gameResult;
     if (choice === compChoice) {
-      setResult('It\'s a tie!');
+      gameResult = 'It\'s a tie!';
     } else if (
       (choice === 'rock' && compChoice === 'scissors') ||
       (choice === 'paper' && compChoice === 'rock') ||
       (choice === 'scissors' && compChoice === 'paper')
     ) {
-      setResult('You win!');
+      gameResult = 'You win!';
       setUserScore(userScore + 1);
     } else {
-      setResult('Computer wins!');
+      gameResult = 'Computer wins!';
       setComputerScore(computerScore + 1);
+    }
+    setResult(gameResult);
+    setRounds(rounds + 1);
+    setHistory([...history, {user: choice, computer: compChoice, result: gameResult}]);
+    if (gameResult === 'You win!') {
+      setStreak(streak + 1);
+    } else {
+      setStreak(0);
     }
   };
 
@@ -36,6 +48,9 @@ function App() {
     setUserMove('');
     setComputerChoice('');
     setResult('');
+    setRounds(0);
+    setHistory([]);
+    setStreak(0);
   };
 
   return (
@@ -44,18 +59,30 @@ function App() {
       <div>
         <p>Your Score: {userScore}</p>
         <p>Computer Score: {computerScore}</p>
+        <p>Rounds Played: {rounds}</p>
+        <p>Current Streak: {streak}</p>
       </div>
       <div>
         <button onClick={() => playGame('rock')}>🪨</button>
         <button onClick={() => playGame('paper')}>📄</button>
         <button onClick={() => playGame('scissors')}>✂️ </button>
       </div>
-      <button onClick={resetScores}>Reset Scores</button>
+      <button onClick={resetScores}>Reset Game</button>
       {userMove && (
         <div>
           <p>You chose: {emojis[userMove]}</p>
           <p>Computer chose: {emojis[computerChoice]}</p>
           <p>{result}</p>
+        </div>
+      )}
+      {history.length > 0 && (
+        <div>
+          <h2>Move History</h2>
+          <ul>
+            {history.map((h, i) => (
+              <li key={i}>Round {i+1}: You {emojis[h.user]} vs Computer {emojis[h.computer]} - {h.result}</li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
